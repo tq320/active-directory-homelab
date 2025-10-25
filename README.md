@@ -41,7 +41,7 @@ A homelab environment built in VirtualBox to simulate an Active Directory domain
 # Configure Network Adapters
 1. Open Network Settings
 2. Configure Internal Network Adapter IP to 172.16.0.1
-3. Configure Internal Network Subnet mask to 255.255.0.0
+3. Configure Internal Network Subnet mask to 255.255.255.0
 4. Configure Internal Network DNS to 127.0.0.1
 5. Do not worry about NAT Internal Adapter because it uses DHCP
 
@@ -149,3 +149,12 @@ A homelab environment built in VirtualBox to simulate an Active Directory domain
 2. Password is not necessary for this lab
 3. If network is asked, put dont have internet
 4. Uncheck bloatware
+5. Open cmd and type ipconfig, verify all details are there
+6. Type ping mydomain.com in cmd and see if it works
+7. Right Click Start, go to system, go to change name (advanced)
+8. Name Computer to Client1 and join domains
+
+# Verify Client in DHCP
+1. Open DCHP in DC
+2. Check Client on Address Leases
+3. Check Client in ADOU
