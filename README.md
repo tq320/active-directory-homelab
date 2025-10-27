@@ -1,160 +1,212 @@
-# active-directory-homelab
-A homelab environment built in VirtualBox to simulate an Active Directory domain with Windows Server 2022 and Windows 10 clients.
+# 🖥️ Active Directory Homelab
+A homelab environment built in VirtualBox to simulate an Active Directory domain using Windows Server 2022, Windows 10, DHCP, NAT, and automated user creation via PowerShell.
 
-# resources needed
-1. VirtualBox 2.7.0 https://www.virtualbox.org/wiki/Downloads
-2. Windows Server 2022 ISO https://www.microsoft.com/en-us/evalcenter/download-windows-server-2022
-3. Windows 10 ISO https://www.microsoft.com/en-us/software-download/windows10 
+---
 
-# Create Virtual Machine for Domain Controller
-1. Open Virtual Box
-2. Click Machine at the top 
-3. Click New
-4. Set VM Name to "DC"
-5. Select Windows Server 2022 ISO Image
-6. Uncheck "Proceed with Unattended Installation" 
-7. Set Memory to 4gb, CPU Cores to 2, Disk Space to 50gb
-8. Confirm
-9. Go to VM Settings
-10. Set Shared Clipboard and Drag and Drop to Bidirectional
-11. Set up Network Adapters: Adapter 1 attached to NAT, Adapter 2 attached to Internal Network
+## 📌 Requirements
+1. VirtualBox 2.7.0  
+   https://www.virtualbox.org/wiki/Downloads  
+2. Windows Server 2022 ISO  
+   https://www.microsoft.com/en-us/evalcenter/download-windows-server-2022  
+3. Windows 10 ISO  
+   https://www.microsoft.com/en-us/software-download/windows10
 
-# Set Up Domain Controller in VM
-1. Open "DC" VM
-2. Select Language 
-3. Click Next 
-4. Install Now
-5. Select one of the Desktop Experience Server 2022 versions
-6. Accept License Agreements
-7. Custom Install
-8. Select Drive 
-9. Click Next
-10. Setup Admin Password
-11. Restart
+---
 
-# Add Tools to Improve VM Performance
-1. Open "DC" VM
-2. Select Devices at the top and click "Insert Guest Additions CD Image"
-3. Open Guest Additions CD Image in File Explorer and run the AMD script
-4. Restart
+## 🏗️ Create the Domain Controller VM (DC)
+1. Open VirtualBox.
+2. Click **Machine → New**.
+3. Name the VM `DC`.
+4. Select the Windows Server 2022 ISO.
+5. Uncheck **Proceed with unattended installation**.
+6. Hardware recommendations:
+   - RAM: **4 GB**
+   - CPU Cores: **2**
+   - Disk: **50 GB**
+7. Confirm the VM creation.
+8. Open **Settings**:
+   - **General → Advanced**: Shared Clipboard + Drag & Drop = **Bidirectional**
+   - **Network**:
+     - Adapter 1: **NAT**
+     - Adapter 2: **Internal Network**
 
-# Configure Network Adapters
-1. Open Network Settings
-2. Configure Internal Network Adapter IP to 172.16.0.1
-3. Configure Internal Network Subnet mask to 255.255.255.0
-4. Configure Internal Network DNS to 127.0.0.1
-5. Do not worry about NAT Internal Adapter because it uses DHCP
+---
 
-# Rename PC
-1. Right Click Windows in bottom left and select "System"
-2. Click Rename This PC, I set it to "DC"
-3. Restart
+## 🔧 Install Windows Server 2022
+1. Start the `DC` VM.
+2. Select language → **Next** → **Install Now**.
+3. Choose **Windows Server 2022 (Desktop Experience)**.
+4. Accept license → Custom install.
+5. Select the disk → **Next**.
+6. Set Administrator password when prompted.
+7. Restart.
 
-# Set Up Active Directory
-1. In Server Manager, click "Add Roles and Features"
-2. Click Next until "Server Roles"
-3. Check "Active Directory Domain Services"
-4. Click Next until Install
+---
 
-# Set Up Domain
-1. Click yellow flag and click promote this server to a domain controller
-2. Click Add a New Forest
-3. Name Domain Name (I set it to mydomain.com)
-4. Click Next until Install
+## 🚀 Install VirtualBox Guest Additions
+1. In the VM, click **Devices → Insert Guest Additions CD Image**.
+2. Open the mounted CD.
+3. Run the installer.
+4. Restart.
 
-# Create Domain Admin Account
-1. Open Active Directory Users and Computers
-2. Right Click Domain Name
-3. Click New
-4. Click Organizational Unit
-5. Put Name as _ADMINS
-6. Right Click _ADMINS
-7. Click New
-8. Click User
-9. Fill in details
-10. Right Click Admin Name
-11. Click Properties
-12. Go Member Of and Add Domain Admins
-13. Sign Out
-14. Sign Into Domain Admin Account
+---
 
-# Set up NAT
-1. Go to Server Manager
-2. Click Roles and Features
-3. Click Next Until Server Roles
-4. CLick Remote Access
-5. Click Next until Role Services
-6. Click Routing
-7. Click Next until Install
-8. Go to Tools in top right and click Routing and Remote Access
-9. Right Click DC and click "Configure and Enable Routing and Remote Access"
-10. Click Next and Select NAT and click Next
-11. Select Internet
+## 🌐 Configure Internal Network Adapter
+Open **Network & Internet Settings → Change adapter options**
 
-# Set up DHCP on Domain Controller
-1. Go to Server Manager
-2. Click Roles and Features
-3. Click Next Until Server Roles
-4. Click DHCP Server
-5. Click Next until Install
-6. Go to Tools in top right and click DHCP
-7. Expand DC.mydomain.com
-8. Right Click iPv4 and click New Scope
-9. Set Name to 172.16.0.100-200
-10. Set Start to 172.16.0.100 and End to 172.16.0.200
-11. Set Subnet mask to 255.255.255.0
-12. Skip Exclusions
-13. Set Lease Duration to use case or leave at 8 days
-14. Put Domain Controller IP (172.16.0.1) for Router
-15. Click Next Until Finish
-16. Authorize dc.mydomain.com then refresh
+Set IPv4:
+- IP Address: `172.16.0.1`
+- Subnet Mask: `255.255.255.0`
+- DNS: `127.0.0.1`
 
-# Create Link to Internet from Domain Controller (don't do this in a production environment, it's okay for lab)
-1. In Server Manager, Click "Configure this local server"
-2. Disable "IE ENhanced Security Configuration" for admin and users
+*(Leave NAT adapter default.)*
 
-# Powershell Script to create accounts
-1. Open Internet Explorer
-2. Put in this link "https://github.com/joshmadakor1/AD_PS/blob/master/Generate-Names-Create-Users.ps1"
-3. Save file to Desktop
-4. Extract file
-5. In names.txt, add your name to the top
-6. Right click Start (bottom left), and expand Windows Powershell Folder
-7. open Windows PowerShell ISE as Admin
-8. Click Open Script top left and select "1_CREATE_USERS" from the folder we extracted
-9. In the console, type "Set-ExecutionPolicy unrestricted", don't do this in an actual production environment
-10. Press Enter and click "Yes to All"
-11. Change directory to folder containing script (cd filepath)
-12. Run Script (F5 or click green arrow at top)
-13. In ADUC, refresh domain, _USERS should pop up
-14. There should be users now and you can right click domain to find specific users
+---
 
-# Create Windows 10 VM
-1. Open Virtual Box
-2. Click Machine at the top 
-3. Click New
-4. Set VM Name to "Client1"
-7. Set Memory to 4gb, CPU Cores to 2, Disk Space to 50gb
-8. Confirm
-9. Go to VM Settings
-10. Set Shared Clipboard and Drag and Drop to Bidirectional
-11. Set up Network Adapter: Adapter 1 attached to Internal Network
-12. Open VM and mount Windows10 ISO that was downloaded
-13. Install and select Windows 10 Pro
-14. Accept License Agreements and Select Custom Install
-15. Continue Until Installation
+## 🏷️ Rename the Server
+1. Right-click Start → **System**.
+2. Click **Rename this PC**.
+3. Set name to `DC`.
+4. Restart.
 
-# Setup Windows 10 VM
-1. Click next until the end
-2. Password is not necessary for this lab
-3. If network is asked, put dont have internet
-4. Uncheck bloatware
-5. Open cmd and type ipconfig, verify all details are there
-6. Type ping mydomain.com in cmd and see if it works
-7. Right Click Start, go to system, go to change name (advanced)
-8. Name Computer to Client1 and join domains
+---
 
-# Verify Client in DHCP
-1. Open DCHP in DC
-2. Check Client on Address Leases
-3. Check Client in ADOU
+## 📁 Install Active Directory Domain Services (AD DS)
+1. Open **Server Manager**.
+2. Click **Add Roles and Features**.
+3. Continue to **Server Roles**.
+4. Check **Active Directory Domain Services**.
+5. Install.
+
+---
+
+## 🌲 Promote to Domain Controller
+1. Click the yellow notification flag.
+2. Select **Promote this server to a domain controller**.
+3. Choose **Add a new forest**.
+4. Domain Name example: `mydomain.com`
+5. Continue through setup and install.
+6. Restart.
+
+---
+
+## 👤 Create Domain Admin Account
+1. Open **Active Directory Users and Computers (ADUC)**.
+2. Right-click the domain → **New → Organizational Unit**.
+3. Name it `_ADMINS`.
+4. Right-click `_ADMINS` → **New → User**.
+5. Fill in details.
+6. Open the user’s **Properties → Member Of**.
+7. Add group: `Domain Admins`.
+8. Sign out and sign in using the new admin account.
+
+---
+
+## 🌐 Configure NAT (Internet for Clients)
+> ⚠️ Lab only — do NOT do this in production.
+
+1. Open **Add Roles and Features** → **Remote Access**.
+2. At **Role Services**, check **Routing**.
+3. Install.
+4. Open **Tools → Routing and Remote Access**.
+5. Right-click `DC` → **Configure and Enable…**
+6. Choose **NAT**.
+7. Select the NAT adapter.
+
+---
+
+## 📡 Install & Configure DHCP
+1. Open **Add Roles and Features** → **DHCP Server**.
+2. Install and open **DHCP** from Tools.
+3. Expand your server name → Right-click **IPv4** → **New Scope**.
+4. Configure:
+   - Name: `172.16.0.100–200`
+   - Start: `172.16.0.100`
+   - End: `172.16.0.200`
+   - Subnet Mask: `255.255.255.0`
+5. Skip exclusions.
+6. Lease duration optional.
+7. Set Router (Gateway): `172.16.0.1`
+8. Finish and **Authorize** the server.
+
+---
+
+## 🌍 Allow Browsing (Optional)
+> ⚠️ Never do this in production.
+
+1. In **Server Manager**, click **Configure this local server**.
+2. Disable **IE Enhanced Security Configuration**.
+
+---
+
+## ⚙️ Bulk User Creation via PowerShell
+1. Open Internet Explorer.
+2. Navigate to:  
+   `https://github.com/joshmadakor1/AD_PS/blob/master/Generate-Names-Create-Users.ps1`
+3. Download/extract to Desktop.
+4. In `names.txt`, add your name (optional).
+5. Open **Windows PowerShell ISE** as Administrator.
+6. Open `1_CREATE_USERS.ps1`.
+7. Run: Set-ExecutionPolicy Unrestricted
+*(Lab only)*
+8. `cd` into the script folder.
+9. Run the script (F5).
+10. In ADUC, refresh — `_USERS` OU appears.
+
+---
+
+## 💻 Create Windows 10 Client VM
+1. **New** VM → Name it `Client1`.
+2. Specs:
+- RAM: **4 GB**
+- CPU Cores: **2**
+- Disk: **50 GB**
+3. Shared Clipboard + Drag & Drop = **Bidirectional**.
+4. Network:
+- Adapter 1 → **Internal Network**
+5. Boot from Windows 10 ISO.
+6. Choose **Windows 10 Pro**.
+7. Custom install → continue.
+
+---
+
+## 🔑 Windows 10 Initial Setup
+1. Continue setup prompts.
+2. No password required for lab.
+3. Choose **I don’t have internet** if asked.
+4. Uncheck bloatware.
+5. Once on desktop:
+- Run `ipconfig` — verify DHCP lease.
+- Test domain:
+  ```
+  ping mydomain.com
+  ```
+6. Right-click Start → **System → Rename this PC (Advanced)**.
+7. Name: `Client1`.
+8. Join `mydomain.com` with domain admin credentials.
+9. Restart.
+
+---
+
+## ✅ Verify Client Registration
+On the Domain Controller:
+
+### DHCP
+- Open **DHCP**.
+- Check **Address Leases** — `Client1` should appear.
+
+### ADUC
+- Check domain computers — `Client1` should be listed.
+
+---
+
+## 🎉 Homelab Complete!
+
+You now have:
+✅ Active Directory Forest  
+✅ DHCP Scope  
+✅ NAT Routing  
+✅ Domain Admin Account  
+✅ Bulk User Accounts  
+✅ Domain-Joined Client  
+
