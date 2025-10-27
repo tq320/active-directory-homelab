@@ -202,11 +202,12 @@ On the Domain Controller:
 
 ## 🎉 Homelab Complete!
 
-You now have:
-✅ Active Directory Forest  
-✅ DHCP Scope  
-✅ NAT Routing  
-✅ Domain Admin Account  
-✅ Bulk User Accounts  
-✅ Domain-Joined Client  
+The homelab contains:
+
+- A Windows Server 2022 domain controller running Active Directory
+- A configured DHCP scope providing IPs to internal network clients
+- NAT routing from the server to access the internet
+- A domain admin account with full administrative privileges
+- Bulk test user accounts created via PowerShell
+- A Windows 10 client computer joined to the domain and receiving an IP from DHCP
 
